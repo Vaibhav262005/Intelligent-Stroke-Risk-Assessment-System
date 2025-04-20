@@ -1,0 +1,73 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-primary {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+}
+
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+}
+
+.btn-close {
+    filter: brightness(0) invert(1);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin: 0;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+} 

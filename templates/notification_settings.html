@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Notification Settings{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Notification Settings</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Manage how and when you receive notifications from the Brain Stroke Prediction System.
+                    </p>
+                    
+                    <form method="POST" action="{{ url_for('notification_settings') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="list-group mb-4">
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.email_notifications(class="form-check-input") }}
+                                    {{ form.email_notifications.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">Receive important notifications via email</p>
+                                </div>
+                            </div>
+
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.sms_notifications(class="form-check-input") }}
+                                    {{ form.sms_notifications.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">Receive important notifications via SMS (requires phone number in profile)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.health_reminders(class="form-check-input") }}
+                                    {{ form.health_reminders.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">Receive reminders to update your health data</p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.glucose_reminders(class="form-check-input") }}
+                                    {{ form.glucose_reminders.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">Receive reminders to log your glucose readings</p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.medication_reminders(class="form-check-input") }}
+                                    {{ form.medication_reminders.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">Receive medication reminders</p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.app_updates(class="form-check-input") }}
+                                    {{ form.app_updates.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">Receive notifications about app updates and new features</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

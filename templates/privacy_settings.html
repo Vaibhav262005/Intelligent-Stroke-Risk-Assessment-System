@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Settings{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Privacy Settings</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Manage your privacy preferences and data settings.
+                    </p>
+                    
+                    <form method="POST" action="{{ url_for('privacy_settings') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="list-group mb-4">
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.share_health_data(class="form-check-input") }}
+                                    {{ form.share_health_data.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">
+                                        Your data will be anonymized and used only for research purposes to improve stroke prediction models.
+                                        No personally identifiable information will be shared.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item">
+                                <div class="form-check form-switch">
+                                    {{ form.public_profile(class="form-check-input") }}
+                                    {{ form.public_profile.label(class="form-check-label") }}
+                                    <p class="text-muted small mt-1 mb-0">
+                                        Allow others to view your public profile. Health data will remain private.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item">
+                                <label class="form-label mb-2">{{ form.data_retention.label }}</label>
+                                {{ form.data_retention(class="form-select") }}
+                                <p class="text-muted small mt-1 mb-0">
+                                    Choose how long we retain your health data. After this period, data will be permanently deleted.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="mb-2">Data Protection Information</h6>
+                            <p class="small text-muted mb-0">
+                                Your data is stored securely and encrypted. We comply with data protection regulations 
+                                and do not share your personal information with third parties without your consent.
+                                You can request a full export or deletion of your data at any time.
+                            </p>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

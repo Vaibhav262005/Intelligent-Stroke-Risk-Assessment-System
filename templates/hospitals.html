@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Find Hospitals{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Find Hospitals Near You</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">Select your state to find hospitals for stroke treatment and emergency care</p>
+                    
+                    <form method="POST" action="{{ url_for('hospitals') }}" class="mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-6">
+                                <label for="state" class="form-label">Select State</label>
+                                <select class="form-select" id="state" name="state" required>
+                                    <option value="" disabled {% if not selected_state %}selected{% endif %}>Choose a state...</option>
+                                    {% for state in states %}
+                                        <option value="{{ state }}" {% if selected_state == state %}selected{% endif %}>{{ state }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">Find Hospitals</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if selected_state and hospitals %}
+                        <h3 class="mt-4 mb-3">Hospitals in {{ selected_state }}</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Hospital Name</th>
+                                        <th>City</th>
+                                        <th>Address</th>
+                                        <th>Pin Code</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for hospital in hospitals %}
+                                        <tr>
+                                            <td>{{ hospital[0] }}</td>
+                                            <td>{{ hospital[1] }}</td>
+                                            <td>{{ hospital[2] }}</td>
+                                            <td>{{ hospital[3] }}</td>
+                                            <td>
+                                                <a href="https://www.google.com/maps/search/?api=1&query={{ hospital[0] }}+{{ hospital[1] }}+{{ hospital[2] }}" 
+                                                   target="_blank" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-geo-alt-fill"></i> Map
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% elif selected_state %}
+                        <div class="alert alert-info mt-4">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            No hospitals found in {{ selected_state }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Emergency Stroke Care Tips</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Know the Warning Signs (FAST)</h4>
+                            <ul class="list-group list-group-flush mb-4">
+                                <li class="list-group-item"><strong>F</strong> - Face Drooping: Does one side of the face droop?</li>
+                                <li class="list-group-item"><strong>A</strong> - Arm Weakness: Is one arm weak or numb?</li>
+                                <li class="list-group-item"><strong>S</strong> - Speech Difficulty: Is speech slurred?</li>
+                                <li class="list-group-item"><strong>T</strong> - Time to call emergency: If you notice these symptoms, call emergency services immediately!</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4><i class="bi bi-clock-fill text-warning me-2"></i>Time is Critical</h4>
+                            <p>In case of a stroke, every minute counts. The faster a stroke victim receives medical attention, the better their chances of recovery.</p>
+                            
+                            <h4><i class="bi bi-shield-plus text-success me-2"></i>What to Do</h4>
+                            <ul>
+                                <li>Call emergency services immediately (dial 108 in India)</li>
+                                <li>Note the time when symptoms started</li>
+                                <li>Don't give medication, food or drinks</li>
+                                <li>If possible, have someone else drive to the nearest hospital</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

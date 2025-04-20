@@ -1,0 +1,49 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Local development settings
+.env
+.flaskenv
+instance/
+.webassets-cache
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Folders with sensitive data
+/reports 

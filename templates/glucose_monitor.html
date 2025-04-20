@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Glucose Monitor{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Glucose Monitoring</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Record a New Reading</h4>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <ul class="nav nav-tabs mb-3" id="readingTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="true">
+                                                <i class="bi bi-pencil me-2"></i>Manual Entry
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="sensor-tab" data-bs-toggle="tab" data-bs-target="#sensor" type="button" role="tab" aria-controls="sensor" aria-selected="false">
+                                                <i class="bi bi-bluetooth me-2"></i>Use Sensor
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="readingTabsContent">
+                                        <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                                            <form method="POST" action="{{ url_for('glucose_monitor') }}">
+                                                <div class="mb-3">
+                                                    <label for="glucose_level" class="form-label">Glucose Level (mg/dL)</label>
+                                                    <input type="number" class="form-control" id="glucose_level" name="glucose_level" min="40" max="500" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="reading_type" class="form-label">Reading Type</label>
+                                                    <select class="form-select" id="reading_type" name="reading_type">
+                                                        <option value="fasting">Fasting</option>
+                                                        <option value="post_meal">Post Meal</option>
+                                                        <option value="random">Random</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="notes" class="form-label">Notes</label>
+                                                    <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                                                </div>
+                                                <button type="submit" name="manual_reading" value="true" class="btn btn-primary">Save Reading</button>
+                                            </form>
+                                        </div>
+                                        <div class="tab-pane fade" id="sensor" role="tabpanel" aria-labelledby="sensor-tab">
+                                            <p class="mb-3">Connect your glucose sensor and click the button below to take a reading.</p>
+                                            <form method="POST" action="{{ url_for('glucose_monitor') }}">
+                                                <button type="submit" name="use_sensor" value="true" class="btn btn-primary">
+                                                    <i class="bi bi-bluetooth me-2"></i>Read from Sensor
+                                                </button>
+                                            </form>
+                                            {% if sensor_status == 'error' %}
+                                            <div class="alert alert-warning mt-3">
+                                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                Unable to connect to glucose sensor. Please check your device connection.
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Glucose Statistics</h4>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <h5 class="text-primary mb-1">{{ stats.avg }}</h5>
+                                            <p class="small text-muted mb-0">Average</p>
+                                        </div>
+                                        <div class="col-4">
+                                            <h5 class="text-success mb-1">{{ stats.min }}</h5>
+                                            <p class="small text-muted mb-0">Minimum</p>
+                                        </div>
+                                        <div class="col-4">
+                                            <h5 class="text-danger mb-1">{{ stats.max }}</h5>
+                                            <p class="small text-muted mb-0">Maximum</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <h6>Readings Distribution</h6>
+                                            <div class="progress" style="height: 25px;">
+                                                {% set normal_pct = (stats.normal_count / stats.count * 100) if stats.count > 0 else 0 %}
+                                                {% set low_pct = (stats.low_count / stats.count * 100) if stats.count > 0 else 0 %}
+                                                {% set high_pct = (stats.high_count / stats.count * 100) if stats.count > 0 else 0 %}
+                                                
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ low_pct }}%" 
+                                                    aria-valuenow="{{ low_pct }}" aria-valuemin="0" aria-valuemax="100">
+                                                    {% if low_pct > 10 %}Low{% endif %}
+                                                </div>
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ normal_pct }}%" 
+                                                    aria-valuenow="{{ normal_pct }}" aria-valuemin="0" aria-valuemax="100">
+                                                    {% if normal_pct > 10 %}Normal{% endif %}
+                                                </div>
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ high_pct }}%" 
+                                                    aria-valuenow="{{ high_pct }}" aria-valuemin="0" aria-valuemax="100">
+                                                    {% if high_pct > 10 %}High{% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row text-center small">
+                                        <div class="col-4">
+                                            <span class="badge bg-warning">{{ stats.low_count }}</span>
+                                            <p>Below 70 mg/dL</p>
+                                        </div>
+                                        <div class="col-4">
+                                            <span class="badge bg-success">{{ stats.normal_count }}</span>
+                                            <p>70-180 mg/dL</p>
+                                        </div>
+                                        <div class="col-4">
+                                            <span class="badge bg-danger">{{ stats.high_count }}</span>
+                                            <p>Above 180 mg/dL</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Recent Readings</h3>
+                </div>
+                <div class="card-body">
+                    {% if readings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="glucoseTable">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Reading (mg/dL)</th>
+                                    <th>Status</th>
+                                    <th>Type</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reading in readings %}
+                                <tr class="
+                                    {% if reading.glucose_level > 180 %}table-danger
+                                    {% elif reading.glucose_level < 70 %}table-warning
+                                    {% else %}table-success{% endif %}">
+                                    <td>{{ reading.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td><strong>{{ reading.glucose_level }}</strong></td>
+                                    <td>
+                                        {% if reading.glucose_level > 180 %}
+                                            <span class="badge bg-danger">High</span>
+                                        {% elif reading.glucose_level < 70 %}
+                                            <span class="badge bg-warning text-dark">Low</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Normal</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ reading.reading_type|title }}</td>
+                                    <td>{{ reading.notes or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('glucose_reading') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>See All Readings
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-3">No glucose readings recorded yet</p>
+                        <a href="{{ url_for('glucose_reading') }}" class="btn btn-success">Record First Reading</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Understanding Glucose Readings</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Normal Glucose Levels</h5>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Time of Check</th>
+                                        <th>Target Range (mg/dL)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Fasting / Before Meals</td>
+                                        <td>70-130</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2 Hours After Meals</td>
+                                        <td>Less than 180</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Before Bedtime</td>
+                                        <td>90-150</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p class="small text-muted mt-2">Note: Target ranges may vary based on individual health conditions and doctor recommendations.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>When to Contact Your Doctor</h5>
+                            <div class="alert alert-danger">
+                                <p class="mb-0"><strong>High Blood Sugar (Hyperglycemia):</strong> Consistently above 240 mg/dL</p>
+                                <ul class="mb-0">
+                                    <li>Increased thirst and urination</li>
+                                    <li>Headaches, blurred vision</li>
+                                    <li>Fatigue or weakness</li>
+                                </ul>
+                            </div>
+                            <div class="alert alert-warning">
+                                <p class="mb-0"><strong>Low Blood Sugar (Hypoglycemia):</strong> Below 70 mg/dL</p>
+                                <ul class="mb-0">
+                                    <li>Shakiness, dizziness, confusion</li>
+                                    <li>Rapid heartbeat</li>
+                                    <li>Sweating, chills</li>
+                                    <li>Extreme hunger</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

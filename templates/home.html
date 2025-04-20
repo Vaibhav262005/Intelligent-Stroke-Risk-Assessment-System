@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-md-6">
+        <h1 class="display-4 mb-4">Monitor Your Brain Stroke Risk</h1>
+        <p class="lead mb-4">Track your health metrics, monitor glucose levels, and get personalized recommendations to reduce your risk of brain stroke.</p>
+        {% if not current_user.is_authenticated %}
+        <div class="d-grid gap-2 d-md-flex">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-md-2">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">Login</a>
+        </div>
+        {% else %}
+        <div class="d-grid gap-2 d-md-flex">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <img src="{{ url_for('static', filename='images/health-monitoring.svg') }}" alt="Health Monitoring" class="img-fluid">
+    </div>
+</div>
+
+<div class="row py-5">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-heart-pulse display-4 text-primary mb-3"></i>
+                <h3 class="card-title">Health Tracking</h3>
+                <p class="card-text">Monitor your vital health metrics and get insights into your overall health status.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up display-4 text-primary mb-3"></i>
+                <h3 class="card-title">Glucose Monitoring</h3>
+                <p class="card-text">Track your glucose levels and receive alerts when readings are outside normal ranges.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-text display-4 text-primary mb-3"></i>
+                <h3 class="card-title">Health Reports</h3>
+                <p class="card-text">Generate detailed health reports and share them with your healthcare provider.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Section About Strokes -->
+<div class="row py-5">
+    <div class="col-12">
+        <h2 class="text-center mb-5">Understanding Brain Stroke</h2>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title h5 mb-0">What is a Brain Stroke?</h3>
+            </div>
+            <div class="card-body">
+                <p>A brain stroke, or cerebrovascular accident (CVA), occurs when blood flow to a part of the brain is interrupted or reduced, preventing brain tissue from getting oxygen and nutrients. Brain cells begin to die within minutes.</p>
+                <p>There are two main types of strokes:</p>
+                <ul>
+                    <li><strong>Ischemic stroke:</strong> Caused by a blockage in an artery that supplies blood to the brain</li>
+                    <li><strong>Hemorrhagic stroke:</strong> Caused by bleeding in or around the brain</li>
+                </ul>
+                <p>A "mini-stroke" or transient ischemic attack (TIA) is a temporary disruption of blood flow to the brain that doesn't cause permanent damage but serves as a warning sign.</p>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title h5 mb-0">Risk Factors</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Controllable Risk Factors</h6>
+                        <ul>
+                            <li>High blood pressure</li>
+                            <li>Smoking</li>
+                            <li>Diabetes</li>
+                            <li>High cholesterol</li>
+                            <li>Physical inactivity</li>
+                            <li>Obesity</li>
+                            <li>Excessive alcohol consumption</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Uncontrollable Risk Factors</h6>
+                        <ul>
+                            <li>Age (risk increases with age)</li>
+                            <li>Gender (stroke is more common in men, but women are more likely to die from stroke)</li>
+                            <li>Family history</li>
+                            <li>Race (higher risk in Asians, Hispanics, and African-Americans)</li>
+                            <li>Prior stroke or TIA</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h3 class="card-title h5 mb-0">Prevention Methods</h3>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li><strong>Control blood pressure:</strong> Regular monitoring and medication if necessary</li>
+                    <li><strong>Manage diabetes:</strong> Check blood sugar regularly and follow treatment plans</li>
+                    <li><strong>Lower cholesterol:</strong> Healthy diet, exercise, and medication if necessary</li>
+                    <li><strong>Stop smoking:</strong> Smokers have 2-4 times higher risk of stroke than non-smokers</li>
+                    <li><strong>Maintain healthy weight:</strong> BMI between 18.5 and 24.9 is ideal</li>
+                    <li><strong>Exercise regularly:</strong> At least 30 minutes of moderate activity most days</li>
+                    <li><strong>Eat a healthy diet:</strong> Rich in fruits, vegetables, whole grains, and low in saturated fats</li>
+                    <li><strong>Limit alcohol:</strong> No more than 1-2 drinks per day</li>
+                    <li><strong>Regular check-ups:</strong> Follow your doctor's recommendations for health screenings</li>
+                </ul>
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Up to 80% of strokes are preventable</strong> through lifestyle changes and addressing risk factors.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h3 class="card-title h5 mb-0">Recognize the Signs (FAST)</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-3 text-center">
+                        <h1 class="display-4 text-danger">F</h1>
+                        <h5>Face Drooping</h5>
+                        <p>One side of the face droops or is numb</p>
+                    </div>
+                    <div class="col-3 text-center">
+                        <h1 class="display-4 text-danger">A</h1>
+                        <h5>Arm Weakness</h5>
+                        <p>One arm is weak or numb</p>
+                    </div>
+                    <div class="col-3 text-center">
+                        <h1 class="display-4 text-danger">S</h1>
+                        <h5>Speech</h5>
+                        <p>Speech is slurred or difficult</p>
+                    </div>
+                    <div class="col-3 text-center">
+                        <h1 class="display-4 text-danger">T</h1>
+                        <h5>Time to Call</h5>
+                        <p>Call emergency services immediately</p>
+                    </div>
+                </div>
+                <div class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Every minute counts!</strong> Prompt treatment can minimize brain damage and potential complications.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

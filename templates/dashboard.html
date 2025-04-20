@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="display-5 mb-4">Welcome, {{ current_user.username }}</h1>
+    
+    <div class="row g-4">
+        <!-- Health Profile Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Health Profile</h4>
+                </div>
+                <div class="card-body">
+                    {% if health_data %}
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Age:</strong> {{ health_data.age }} years</p>
+                                <p class="mb-1"><strong>Gender:</strong> {{ health_data.gender }}</p>
+                                <p class="mb-1"><strong>Height:</strong> {{ health_data.height }} cm</p>
+                                <p class="mb-1"><strong>Weight:</strong> {{ health_data.weight }} kg</p>
+                                {% if health_data.bmi %}
+                                <p class="mb-1"><strong>BMI:</strong> {{ health_data.bmi }} ({{ health_data.bmi_category }})</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Hypertension:</strong> {{ "Yes" if health_data.hypertension else "No" }}</p>
+                                <p class="mb-1"><strong>Heart Disease:</strong> {{ "Yes" if health_data.heart_disease else "No" }}</p>
+                                <p class="mb-1"><strong>Glucose Level:</strong> {{ health_data.avg_glucose_level }} mg/dL</p>
+                                <p class="mb-1"><strong>Smoking Status:</strong> {{ health_data.smoking_status }}</p>
+                                <p class="mb-1"><strong>Work Type:</strong> {{ health_data.work_type }}</p>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('health_data') }}" class="btn btn-outline-primary">Update Health Data</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p>You haven't entered your health data yet.</p>
+                            <a href="{{ url_for('health_data') }}" class="btn btn-primary">Enter Health Data</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Glucose Readings Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Recent Glucose Readings</h4>
+                    {% if glucose_readings.count() > 0 %}
+                    <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#deleteAllReadingsModal">
+                        <i class="bi bi-trash"></i> Delete All
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if glucose_readings.count() > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Level (mg/dL)</th>
+                                        <th>Type</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reading in glucose_readings %}
+                                    <tr>
+                                        <td>{{ reading.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ reading.glucose_level }}</td>
+                                        <td>{{ reading.reading_type|capitalize }}</td>
+                                        <td>
+                                            <form action="{{ url_for('delete_glucose_reading', reading_id=reading.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this reading?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('glucose_reading') }}" class="btn btn-outline-success">Add New Reading</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p>You haven't recorded any glucose readings yet.</p>
+                            <a href="{{ url_for('glucose_reading') }}" class="btn btn-success">Record Glucose Reading</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Row -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Quick Actions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="d-grid">
+                                <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-chart-line me-2"></i>Predict Stroke Risk
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-grid">
+                                <a href="{{ url_for('glucose_reading') }}" class="btn btn-success btn-lg">
+                                    <i class="fas fa-tint me-2"></i>Record Glucose
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-grid">
+                                <a href="{{ url_for('generate_report') }}" class="btn btn-info btn-lg">
+                                    <i class="fas fa-file-medical me-2"></i>Generate Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete All Readings Modal -->
+{% if glucose_readings.count() > 0 %}
+<div class="modal fade" id="deleteAllReadingsModal" tabindex="-1" aria-labelledby="deleteAllReadingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAllReadingsModalLabel">Delete All Glucose Readings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone.
+                </p>
+                <p>Are you sure you want to delete all your glucose readings?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('delete_all_glucose_readings') }}" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete All Readings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

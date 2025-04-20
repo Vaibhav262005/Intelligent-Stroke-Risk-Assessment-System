@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Glucose Readings - Brain Stroke Risk Assessment{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reading-high {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .reading-normal {
+        color: #198754;
+    }
+    .reading-low {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    .glucose-chart {
+        height: 400px;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Add New Reading Form -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Add New Reading</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.glucose_readings') }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.glucose_level.label(class="form-label") }}
+                        {{ form.glucose_level(class="form-control" + (" is-invalid" if form.glucose_level.errors else "")) }}
+                        {% if form.glucose_level.errors %}
+                            {% for error in form.glucose_level.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-text">Normal range: 70-180 mg/dL</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.reading_type.label(class="form-label") }}
+                        {{ form.reading_type(class="form-select" + (" is-invalid" if form.reading_type.errors else "")) }}
+                        {% if form.reading_type.errors %}
+                            {% for error in form.reading_type.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows="3") }}
+                        {% if form.notes.errors %}
+                            {% for error in form.notes.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sensor Reading Button -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Sensor Reading</h5>
+                <p class="card-text">Click below to take an automatic reading from your glucose sensor.</p>
+                <button id="sensorReadingBtn" class="btn btn-secondary w-100">
+                    Take Sensor Reading
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Readings History -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Glucose Reading History</h3>
+            </div>
+            <div class="card-body">
+                {% if readings %}
+                    <!-- Glucose Chart -->
+                    <div class="glucose-chart" id="glucoseChart"></div>
+
+                    <!-- Readings Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Level (mg/dL)</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reading in readings %}
+                                    <tr>
+                                        <td>{{ reading.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td class="{% if reading.glucose_level > 180 %}reading-high{% elif reading.glucose_level < 70 %}reading-low{% else %}reading-normal{% endif %}">
+                                            {{ "%.1f"|format(reading.glucose_level) }}
+                                        </td>
+                                        <td>{{ reading.reading_type }}</td>
+                                        <td>
+                                            {% if reading.glucose_level > 180 %}
+                                                <span class="badge bg-danger">High</span>
+                                            {% elif reading.glucose_level < 70 %}
+                                                <span class="badge bg-warning text-dark">Low</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Normal</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ reading.notes or '-' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No glucose readings recorded yet. Use the form on the left to add your first reading.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Glucose level input validation
+    const glucoseInput = document.getElementById('glucose_level');
+    if (glucoseInput) {
+        glucoseInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9.]/g, '');
+        });
+    }
+
+    // Sensor reading button functionality
+    const sensorBtn = document.getElementById('sensorReadingBtn');
+    if (sensorBtn) {
+        sensorBtn.addEventListener('click', async function() {
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Reading...';
+            
+            try {
+                const response = await fetch("{{ url_for('main.read_sensor') }}");
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.warning) {
+                        alert(data.warning);
+                    }
+                    location.reload();
+                } else {
+                    alert('Error reading sensor: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error connecting to sensor. Please try again.');
+            } finally {
+                this.disabled = false;
+                this.innerHTML = 'Take Sensor Reading';
+            }
+        });
+    }
+
+    // Initialize glucose chart if readings exist
+    {% if readings %}
+        const ctx = document.getElementById('glucoseChart').getContext('2d');
+        const data = {
+            labels: [{% for reading in readings|reverse %}
+                '{{ reading.timestamp.strftime("%m/%d %H:%M") }}',
+            {% endfor %}],
+            datasets: [{
+                label: 'Glucose Level',
+                data: [{% for reading in readings|reverse %}
+                    {{ reading.glucose_level }},
+                {% endfor %}],
+                borderColor: '#2c3e50',
+                tension: 0.1,
+                fill: false
+            }]
+        };
+
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    annotation: {
+                        annotations: {
+                            highLine: {
+                                type: 'line',
+                                yMin: 180,
+                                yMax: 180,
+                                borderColor: '#dc3545',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                label: {
+                                    content: 'High',
+                                    enabled: true,
+                                    position: 'left'
+                                }
+                            },
+                            lowLine: {
+                                type: 'line',
+                                yMin: 70,
+                                yMax: 70,
+                                borderColor: '#ffc107',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                label: {
+                                    content: 'Low',
+                                    enabled: true,
+                                    position: 'left'
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Glucose Level (mg/dL)'
+                        }
+                    }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+    {% endif %}
+});
+</script>
+{% endblock %} 

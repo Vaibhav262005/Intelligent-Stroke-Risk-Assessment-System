@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}All Hospitals{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">All Hospitals in India</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">Complete list of hospitals for stroke treatment and emergency care</p>
+                    
+                    {% if hospitals %}
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="hospitalSearch" class="form-control" placeholder="Search for hospitals, cities, or states..." onkeyup="filterHospitals()">
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="hospitalsTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Hospital Name</th>
+                                        <th>State</th>
+                                        <th>City</th>
+                                        <th>Address</th>
+                                        <th>Pin Code</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for hospital in hospitals %}
+                                        <tr>
+                                            <td>{{ hospital.name }}</td>
+                                            <td>{{ hospital.state }}</td>
+                                            <td>{{ hospital.city }}</td>
+                                            <td>{{ hospital.address }}</td>
+                                            <td>{{ hospital.pincode }}</td>
+                                            <td>
+                                                <a href="https://www.google.com/maps/search/?api=1&query={{ hospital.name }}+{{ hospital.city }}+{{ hospital.address }}" 
+                                                   target="_blank" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-geo-alt-fill"></i> Map
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mt-4">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            No hospital data available. Please run the training script to generate hospital data.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Emergency Stroke Care Tips</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Know the Warning Signs (FAST)</h4>
+                            <ul class="list-group list-group-flush mb-4">
+                                <li class="list-group-item"><strong>F</strong> - Face Drooping: Does one side of the face droop?</li>
+                                <li class="list-group-item"><strong>A</strong> - Arm Weakness: Is one arm weak or numb?</li>
+                                <li class="list-group-item"><strong>S</strong> - Speech Difficulty: Is speech slurred?</li>
+                                <li class="list-group-item"><strong>T</strong> - Time to call emergency: If you notice these symptoms, call emergency services immediately!</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4><i class="bi bi-clock-fill text-warning me-2"></i>Time is Critical</h4>
+                            <p>In case of a stroke, every minute counts. The faster a stroke victim receives medical attention, the better their chances of recovery.</p>
+                            
+                            <h4><i class="bi bi-shield-plus text-success me-2"></i>What to Do</h4>
+                            <ul>
+                                <li>Call emergency services immediately (dial 108 in India)</li>
+                                <li>Note the time when symptoms started</li>
+                                <li>Don't give medication, food or drinks</li>
+                                <li>If possible, have someone else drive to the nearest hospital</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterHospitals() {
+    const input = document.getElementById('hospitalSearch');
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById('hospitalsTable');
+    const tr = table.getElementsByTagName('tr');
+    
+    for (let i = 0; i < tr.length; i++) {
+        let txtValue = "";
+        // Skip header row
+        if (i === 0) continue;
+        
+        const cells = tr[i].getElementsByTagName('td');
+        for (let j = 0; j < cells.length - 1; j++) { // Exclude the Actions column
+            txtValue += cells[j].textContent || cells[j].innerText;
+        }
+        
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+</script>
+{% endblock %} 
