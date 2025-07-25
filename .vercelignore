@@ -19,11 +19,6 @@ build/
 instance/
 .webassets-cache
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
 # IDE files
 .idea/
 .vscode/
@@ -32,9 +27,6 @@ instance/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-
-# Log files
-*.log
 
 # OS generated files
 .DS_Store
@@ -45,6 +37,17 @@ instance/
 ehthumbs.db
 Thumbs.db
 
-# Folders with sensitive data
-/reports 
-.vercel
+# Data files not needed for deployment
+*.csv
+/data/raw/
+/notebooks/
+
+# Test files
+/tests/
+pytest_cache/
+.pytest_cache/
+
+# Local database (use a proper DB in production)
+*.db
+*.sqlite
+*.sqlite3 
